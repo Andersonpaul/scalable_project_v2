@@ -1,0 +1,8 @@
+flask
+flask-cors
+azure-storage-blob
+gunicorn
+azure-search-documents>=11.5.0
+azure-core>=1.30.0
+requests
+openai
