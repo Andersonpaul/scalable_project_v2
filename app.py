@@ -63,7 +63,7 @@ def upload_image():
 
 @app.route("/gallery", methods=["GET"])
 def view_gallery():
-    CONTAINER_SAS_URL = "https://picturesupload.blob.core.windows.net/images?sp=r&st=2026-03-30T14:38:05Z&se=2050-03-30T22:53:05Z&sv=2024-11-04&sr=c&sig=Uo8dUBl0jR7clmX%2BtdOLjFVSkJYTASuRKsikwlDuRf8%3D"
+    CONTAINER_SAS_URL = "https://picturesupload.blob.core.windows.net/images?sp=racwdl&st=2026-03-31T13:47:52Z&se=2050-03-31T22:02:52Z&sv=2024-11-04&sr=c&sig=TnEkGrOQn6Ljnh7dvGqm3A1azH39c0ei2REX1jmJzVo%3D"
 
     container_client = ContainerClient.from_container_url(CONTAINER_SAS_URL)
 
@@ -77,7 +77,7 @@ def view_gallery():
 
     for blob in blobs:
         if blob.lower().endswith(image_extensions):
-            full_url = f"{base_url}/images/{blob.split('/')[-1]}?{sas_token}"
+            full_url = f"{base_url}/{blob.split('/')[-1]}?{sas_token}"
             img_url.append(full_url)
     
     return (img_url)
