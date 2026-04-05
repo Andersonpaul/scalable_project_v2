@@ -7,6 +7,7 @@ import openai
 from azure.search.documents import SearchClient
 from azure.core.credentials import AzureKeyCredential
 from azure.search.documents.models import VectorizedQuery
+import pyodbc
 
 
 app = Flask(__name__)
@@ -29,6 +30,26 @@ search_client = SearchClient(
 blob_service_client = BlobServiceClient.from_connection_string(
     AZURE_CONNECTION_STRING
 )
+
+# Connection details to Azure SQL DB
+server = 'tcp:photos-db-server.database.windows.net,1433'
+database = 'photos-db'
+username = os.getenv("DB_USERNAME")
+password = os.getenv("DB_PASSWORD")
+driver = '{ODBC Driver 18 for SQL Server}'
+
+# Connection string
+conn_str = f"""
+DRIVER={driver};
+SERVER={server};
+DATABASE={database};
+UID={username};
+PWD={password};
+Encrypt=yes;
+TrustServerCertificate=no;
+Connection Timeout=30;
+"""
+
 
 def generate_text_embedding(query_text, model="text-embedding-3-large"):
     if not openai.api_key:
@@ -57,8 +78,44 @@ def upload_image():
 
     blob_client.upload_blob(file, overwrite=True)
 
+    try:
+        # Connect to Azure SQL
+        conn = pyodbc.connect(conn_str)
+        cursor = conn.cursor()
+
+        print("Connected to Azure SQL!")
+
+        # Example insert query
+        insert_query = """
+        INSERT INTO photos (name, caption,area_location,image_url)
+        VALUES (?,?,?,?)
+        """
+
+        # Data to insert
+        data = [
+            (request.form.get('name'), request.form.get('caption'),request.form.get('area_location'),blob_client.url)
+        ]
+
+        # Execute multiple inserts
+        cursor.executemany(insert_query, data)
+
+        # Commit changes
+        conn.commit()
+
+        print(f"{cursor.rowcount} records inserted successfully!")
+
+    except Exception as e:
+        print("Error:", str(e))
+
+    finally:
+        if 'conn' in locals():
+            conn.close()
+
     return jsonify({
-        "image_url": blob_client.url
+        "image_url": blob_client.url,
+        "name" : request.form.get('name'),
+         "caption" : request.form.get('caption'),
+         "area_location" : request.form.get('area_location')
     })
 
 @app.route("/gallery", methods=["GET"])
@@ -116,6 +173,30 @@ def search_gallery():
         "score": top_result["@search.score"]
     })
 
+@app.route("/find", methods=["POST"])
+def find_image():
+    data = request.get_json()
+
+    if not data or "query" not in data:
+        return jsonify({"error": "Missing 'query' field"}), 400
+
+    query_text = data["query"]
+
+    conn = pyodbc.connect(conn_str)
+    cursor = conn.cursor()
+
+    select_query = "SELECT * FROM photos WHERE name = ?"
+    top_result=cursor.execute(select_query, query_text).fetchone()[3]
+
+    if not top_result:
+        return jsonify({"message": "No images found"}), 404
+
+    return jsonify({
+        "imageUrl": top_result
+    })
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     app.run(host="0.0.0.0", port=port)
+
+
