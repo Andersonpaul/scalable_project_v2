@@ -8,7 +8,7 @@ from azure.search.documents import SearchClient
 from azure.core.credentials import AzureKeyCredential
 from azure.search.documents.models import VectorizedQuery
 import pyodbc
-
+from azure.monitor.opentelemetry import configure_azure_monitor
 
 app = Flask(__name__)
 CORS(app)
@@ -20,6 +20,9 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 SEARCH_ENDPOINT = "https://cw2aivision.search.windows.net"
 SEARCH_KEY = os.getenv("AZURE_SEARCH_KEY")
 SEARCH_INDEX = "image-index"
+
+configure_azure_monitor()
+
 
 search_client = SearchClient(
     endpoint=SEARCH_ENDPOINT,

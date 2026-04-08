@@ -7,3 +7,6 @@ azure-core>=1.30.0
 requests
 openai
 pyodbc
+azure-monitor-opentelemetry
+opentelemetry-instrumentation-flask
+opentelemetry-instrumentation-requests
