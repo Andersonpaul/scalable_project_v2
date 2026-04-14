@@ -42,8 +42,6 @@ jobs:
         with:
           name: python-app
 
-      # ✅ NO Azure login step anymore (this was causing the MS Graph error)
-
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
