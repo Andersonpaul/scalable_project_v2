@@ -189,7 +189,10 @@ def find_image():
     cursor = conn.cursor()
 
     select_query = "SELECT * FROM photos WHERE name = ?"
-    top_result=cursor.execute(select_query, query_text).fetchone()[3]
+    #top_result=cursor.execute(select_query, query_text).fetchone()[3]
+
+    rows = cursor.execute(select_query, query_text).fetchall()
+    top_result = [row[3] for row in rows]
 
     if not top_result:
         return jsonify({"message": "No images found"}), 404
