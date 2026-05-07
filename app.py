@@ -13,7 +13,7 @@ import base64
 from openai import OpenAI
 
 app = Flask(__name__)
-CORS(app)
+CORS(app,origins=["http://20.100.58.26"])
 
 # Use environment variable in production
 AZURE_CONNECTION_STRING = "BlobEndpoint=https://picturesupload.blob.core.windows.net/;QueueEndpoint=https://picturesupload.queue.core.windows.net/;FileEndpoint=https://picturesupload.file.core.windows.net/;TableEndpoint=https://picturesupload.table.core.windows.net/;SharedAccessSignature=sv=2025-11-05&ss=bfqt&srt=sco&sp=rwdlacupiytfx&se=2026-12-30T19:18:52Z&st=2026-04-14T11:03:52Z&spr=https&sig=nmCRxXbHrrnUPqnZ0TP%2BKS%2FT5FTKgFNBEeBL1xHvWV4%3D"
