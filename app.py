@@ -232,10 +232,10 @@ def find_image():
     conn = pyodbc.connect(conn_str)
     cursor = conn.cursor()
 
-    select_query = "SELECT * FROM photos WHERE name = ?"
+    select_query = "SELECT * FROM photos_v2 WHERE name = ? or caption = ? or area_location = ? or ai_generated_caption = ?"
     #top_result=cursor.execute(select_query, query_text).fetchone()[3]
 
-    rows = cursor.execute(select_query, query_text).fetchall()
+    rows = cursor.execute(select_query, query_text,query_text,query_text,query_text).fetchall()
     top_result = [row[3] for row in rows]
 
     if not top_result:
